@@ -3,7 +3,7 @@ export const COMMON_REQUEST_HEADER = {
   'Content-Type': 'application/json',
 } as const;
 
-export interface Characters {
+export interface Character {
   url: string; //	The hypermedia URL of this resource
   name: string; //	The name of this character
   gender: string; //	The gender of this character.
