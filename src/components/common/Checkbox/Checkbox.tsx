@@ -22,14 +22,14 @@ const Checkbox = ({ children, isChecked = false, onClick, reversal = false }: Ch
           ${
             reversal
               ? 'after:absolute after:left-[4px] after:top-[5px] after:box-content after:h-[7px] after:w-[12px] after:border-[3px] after:border-r-0 after:border-t-0 after:border-solid after:border-[#C1C7CD] after:-rotate-45 after:content-[""]'
-              : 'bg-[#C1C7CD]'
+              : 'bg-gray-300'
           }
             ${
               isChecked
                 ? `${
-                    reversal ? 'bg-white' : '!bg-[#4394F0]'
+                    reversal ? 'bg-white' : '!bg-blue-400'
                   } after:absolute after:left-[4px] after:top-[5px] after:box-content after:h-[7px] after:w-[12px] after:border-[3px] after:border-r-0 after:border-t-0 after:border-solid ${
-                    reversal ? 'after:border-[#4394F0]' : 'after:border-white'
+                    reversal ? 'after:border-blue-400' : 'after:border-white'
                   } after:-rotate-45 after:content-[""]`
                 : ''
             }
