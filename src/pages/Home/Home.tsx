@@ -1,43 +1,75 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Character } from 'src/api';
+import { Item } from 'src/components';
 import { Button } from 'src/components/common/Button';
 import { Checkbox } from 'src/components/common/Checkbox';
 import { getCharacters } from 'src/querys';
 
 const Home = () => {
-  const fetchCharacters = useCallback(async () => {
-    const res = await getCharacters(1, 10);
-    console.log(res.data);
-  }, []);
-
-  useEffect(() => {
-    // fetchCharacters();
-  }, [fetchCharacters]);
+  const [characterList, setCharacterList] = useState<Character[]>([]);
 
   const [check1, setCheck1] = useState<boolean>(false);
   const [check2, setCheck2] = useState<boolean>(false);
   const [check3, setCheck3] = useState<boolean>(false);
+
+  const fetchCharacters = useCallback(async (page: number, size: number) => {
+    const res = await getCharacters(page, size);
+    setCharacterList(res.data);
+  }, []);
+
+  useEffect(() => {
+    fetchCharacters(1, 50);
+  }, [fetchCharacters]);
+
   const handleCheck = (index: number) => {
     if (index === 1) setCheck1(!check1);
     if (index === 2) setCheck2(!check2);
     if (index === 3) setCheck3(!check3);
   };
 
+  const filteredList = useMemo(() => {
+    const died = check1 ? (value: Character) => value.died === '' : true;
+    const female = check2 ? (value: Character) => value.gender === 'Female' : true;
+    const emptyTvSeries = check3 ? (value: Character) => value.tvSeries.length === 0 : true;
+
+    return characterList.reduce<Character[]>((acc, cur) => {
+      const died = check1 ? cur.died === '' : true;
+      const female = check2 ? cur.gender === 'Female' : true;
+      const emptyTvSeries = check3 ? cur.tvSeries.length === 1 && cur.tvSeries[0] === '' : true;
+
+      if (died && female && emptyTvSeries) acc.push(cur);
+      return acc;
+    }, []);
+  }, [characterList, check1, check2, check3]);
+
+  const handleReset = () => {
+    setCheck1(false);
+    setCheck2(false);
+    setCheck3(false);
+  };
+
   return (
     <div>
       <header className="border border-1 border-solid">header</header>
 
-      <nav className="py-4">
+      <nav className="flex justify-center py-4 items-center">
         <Checkbox isChecked={check1} onClick={() => handleCheck(1)}>
-          c1
+          생존인물만
         </Checkbox>
         <Checkbox isChecked={check2} onClick={() => handleCheck(2)}>
-          c2
+          여자
         </Checkbox>
         <Checkbox isChecked={check3} onClick={() => handleCheck(3)}>
-          c3
+          tvSeries 없음
         </Checkbox>
-        <Button>reset</Button>
+        <Button onClick={handleReset}>reset</Button>
       </nav>
+
+      <section>
+        {filteredList.map((value, index) => (
+          <Item key={`item-${index}`} item={value} />
+        ))}
+      </section>
     </div>
   );
 };

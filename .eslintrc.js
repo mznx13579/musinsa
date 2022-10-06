@@ -68,6 +68,7 @@ module.exports = {
         bracketSpacing: true,
         printWidth: 120,
         arrowParens: 'always',
+        endOfLine: 'auto',
       },
     ],
   },
