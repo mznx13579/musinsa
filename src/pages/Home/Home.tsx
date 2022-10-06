@@ -12,13 +12,15 @@ const Home = () => {
   const [check2, setCheck2] = useState<boolean>(false);
   const [check3, setCheck3] = useState<boolean>(false);
 
+  const [deletedList, setDeletedList] = useState<number[]>([]);
+
   const fetchCharacters = useCallback(async (page: number, size: number) => {
     const res = await getCharacters(page, size);
     setCharacterList(res.data);
   }, []);
 
   useEffect(() => {
-    fetchCharacters(1, 50);
+    // fetchCharacters(1, 10);
   }, [fetchCharacters]);
 
   const handleCheck = (index: number) => {
@@ -28,10 +30,6 @@ const Home = () => {
   };
 
   const filteredList = useMemo(() => {
-    const died = check1 ? (value: Character) => value.died === '' : true;
-    const female = check2 ? (value: Character) => value.gender === 'Female' : true;
-    const emptyTvSeries = check3 ? (value: Character) => value.tvSeries.length === 0 : true;
-
     return characterList.reduce<Character[]>((acc, cur) => {
       const died = check1 ? cur.died === '' : true;
       const female = check2 ? cur.gender === 'Female' : true;
@@ -46,7 +44,16 @@ const Home = () => {
     setCheck1(false);
     setCheck2(false);
     setCheck3(false);
+    setDeletedList([]);
   };
+
+  const handleDelete = useCallback(
+    (idx: number) => {
+      setDeletedList([...deletedList, idx]);
+      console.log(deletedList);
+    },
+    [deletedList],
+  );
 
   return (
     <div>
@@ -66,9 +73,11 @@ const Home = () => {
       </nav>
 
       <section>
-        {filteredList.map((value, index) => (
-          <Item key={`item-${index}`} item={value} />
-        ))}
+        {filteredList.map((value, index) => {
+          if (!deletedList.includes(index))
+            return <Item key={`item-${index}`} item={value} onClickDelete={() => handleDelete(index)} />;
+          return null;
+        })}
       </section>
     </div>
   );
