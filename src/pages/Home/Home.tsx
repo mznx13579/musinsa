@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Character } from 'src/api';
+import useScroll from 'src/common/useScroll';
 import { Item } from 'src/components';
 import { Button } from 'src/components/common/Button';
 import { Checkbox } from 'src/components/common/Checkbox';
@@ -7,6 +9,10 @@ import { getCharacters } from 'src/querys';
 
 const Home = () => {
   const [characterList, setCharacterList] = useState<Character[]>([]);
+  const { scrollDirection } = useScroll('throttle', 100);
+
+  const [page, setPage] = useState<number>(0);
+  const [searchParams] = useSearchParams();
 
   const [check1, setCheck1] = useState<boolean>(false);
   const [check2, setCheck2] = useState<boolean>(false);
@@ -14,14 +20,21 @@ const Home = () => {
 
   const [deletedList, setDeletedList] = useState<number[]>([]);
 
-  const fetchCharacters = useCallback(async (page: number, size: number) => {
-    const res = await getCharacters(page, size);
-    setCharacterList(res.data);
-  }, []);
+  const fetchCharacters = useCallback(
+    async (page: number, size: number) => {
+      const res = await getCharacters(page, size);
+      setCharacterList([...characterList, ...res.data]);
+    },
+    [characterList],
+  );
 
   useEffect(() => {
-    // fetchCharacters(1, 10);
-  }, [fetchCharacters]);
+    setPage(Number(searchParams.get('page') || 1));
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (page !== 0) fetchCharacters(page, 10);
+  }, [page]);
 
   const handleCheck = (index: number) => {
     if (index === 1) setCheck1(!check1);
@@ -47,10 +60,14 @@ const Home = () => {
     setDeletedList([]);
   };
 
+  useEffect(() => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300 && scrollDirection === 'up')
+      setPage((prev) => prev + 1);
+  }, [scrollDirection]);
+
   const handleDelete = useCallback(
     (idx: number) => {
       setDeletedList([...deletedList, idx]);
-      console.log(deletedList);
     },
     [deletedList],
   );

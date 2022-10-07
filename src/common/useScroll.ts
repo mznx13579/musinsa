@@ -58,6 +58,7 @@ export const useScroll = (eventControl?: 'throttle' | 'debounce', delay?: number
     scrollY: state.scrollY,
     scrollX: state.scrollX,
     scrollDirection: state.scrollDirection,
+    bodyOffset: state.bodyOffset,
   };
 };
 
